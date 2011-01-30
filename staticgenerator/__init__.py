@@ -4,6 +4,8 @@
 """Static file generator for Django."""
 import stat
 
+import shutil
+
 from django.utils.functional import Promise
 
 from filesystem import FileSystem
@@ -203,9 +205,14 @@ class StaticGenerator(object):
         except:
             raise StaticGeneratorException('Could not create the file: %s' % filename)
 
+    def recursive_delete_from_path(self, path):
+        filename, directory = self.get_filename_from_path(path)
+        shutil.rmtree(directory, True)
+
     def delete_from_path(self, path):
         """Deletes file, attempts to delete directory"""
         filename, directory = self.get_filename_from_path(path)
+
         try:
             if self.fs.exists(filename):
                 self.fs.remove(filename)
@@ -215,7 +222,7 @@ class StaticGenerator(object):
         try:
             self.fs.rmdir(directory)
         except OSError:
-            # Will fail if a directory is not empty, in which case we don't 
+            # Will fail if a directory is not empty, in which case we don't
             # want to delete it anyway
             pass
 
@@ -225,6 +232,9 @@ class StaticGenerator(object):
     def delete(self):
         return self.do_all(self.delete_from_path)
 
+    def recursive_delete(self):
+        return self.do_all(self.recursive_delete_from_path)
+
     def publish(self):
         return self.do_all(self.publish_from_path)
 
@@ -233,3 +243,9 @@ def quick_publish(*resources):
 
 def quick_delete(*resources):
     return StaticGenerator(*resources).delete()
+
+def quick_delete(*resources):
+    return StaticGenerator(*resources).delete()
+
+def recursive_delete(*resources):
+    return StaticGenerator(*resources).recursive_delete()
