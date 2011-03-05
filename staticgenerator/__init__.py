@@ -3,10 +3,12 @@
 
 """Static file generator for Django."""
 import stat
+import urlparse
 
 import shutil
 
 from django.utils.functional import Promise
+from django.http import QueryDict
 
 from filesystem import FileSystem
 from handlers import DummyHandler
@@ -155,7 +157,10 @@ class StaticGenerator(object):
         """
 
         request = self.http_request()
-        request.path_info = path
+        # We must parse the path to grab query string
+        parsed = urlparse.urlparse(path)
+        request.path_info = parsed.path
+        request.GET = QueryDict(parsed.query)
         request.META.setdefault('SERVER_PORT', 80)
         request.META.setdefault('SERVER_NAME', self.server_name)
 
@@ -170,23 +175,30 @@ class StaticGenerator(object):
 
         return response.content
 
-    def get_filename_from_path(self, path):
+    def get_filename_from_path(self, path, query_string):
         """
-        Returns (filename, directory)
+        Returns (filename, directory). None if unable to cache this request.
         Creates index.html for path if necessary
         """
         if path.endswith('/'):
             path = '%sindex.html' % path
+        # will not work on windows... meh
+        if query_string:
+            path += "?" + query_string
 
         filename = self.fs.join(self.web_root, path.lstrip('/')).encode('utf-8')
+        if len(filename) > 255:
+            return None, None
         return filename, self.fs.dirname(filename)
 
-    def publish_from_path(self, path, content=None):
+    def publish_from_path(self, path, query_string, content=None):
         """
         Gets filename and content for a path, attempts to create directory if 
         necessary, writes to file.
         """
-        filename, directory = self.get_filename_from_path(path)
+        filename, directory = self.get_filename_from_path(path, query_string)
+        if not filename:
+            return # cannot cache
         if not content:
             content = self.get_content_from_path(path)
 
