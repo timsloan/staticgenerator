@@ -131,17 +131,18 @@ This configuration snippet shows how Nginx can automatically show the index.html
             root   /var/www/;
 
             location / {
-                if (-f $request_filename/index.html) {
-                    rewrite (.*) $1/index.html break;
+                default_type  text/html;
+                if (-f $request_filename/index.html$is_args$args) {
+                    rewrite (.*)/ $1/index.html$is_args$args?
+                    break;
                 }
-                if (!-f $request_filename) {
-                    proxy_pass http://django;
+
+                if (!-f $request_filename$is_args$args) {
+                        proxy_pass http://django;
                     break;
                 }
             }
-
         }
-    
     }
     
 ## It’s not for Everything
