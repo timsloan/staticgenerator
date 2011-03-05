@@ -218,12 +218,12 @@ class StaticGenerator(object):
             raise StaticGeneratorException('Could not create the file: %s' % filename)
 
     def recursive_delete_from_path(self, path):
-        filename, directory = self.get_filename_from_path(path)
+        filename, directory = self.get_filename_from_path(path, '')
         shutil.rmtree(directory, True)
 
     def delete_from_path(self, path):
         """Deletes file, attempts to delete directory"""
-        filename, directory = self.get_filename_from_path(path)
+        filename, directory = self.get_filename_from_path(path, '')
 
         try:
             if self.fs.exists(filename):
