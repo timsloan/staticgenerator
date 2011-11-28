@@ -191,7 +191,7 @@ class StaticGenerator(object):
             return None, None
         return filename, self.fs.dirname(filename)
 
-    def publish_from_path(self, path, query_string, content=None):
+    def publish_from_path(self, path, query_string=None, content=None):
         """
         Gets filename and content for a path, attempts to create directory if 
         necessary, writes to file.
