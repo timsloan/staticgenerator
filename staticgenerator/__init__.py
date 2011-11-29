@@ -161,8 +161,10 @@ class StaticGenerator(object):
         parsed = urlparse.urlparse(path)
         request.path_info = parsed.path
         request.GET = QueryDict(parsed.query)
+        request.REQUEST = request.GET
         request.META.setdefault('SERVER_PORT', 80)
         request.META.setdefault('SERVER_NAME', self.server_name)
+        request.META.setdefault('REMOTE_ADDR', '127.0.0.1')
 
         handler = DummyHandler()
         try:
