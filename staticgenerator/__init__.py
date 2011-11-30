@@ -177,6 +177,14 @@ class StaticGenerator(object):
 
         return response.content
 
+    def get_query_string_from_path(self, path):
+        parts = path.split('?')
+        if len(parts) == 1:
+            return parts[0], None
+        if len(parts) > 2:
+            raise StaticGeneratorException('Path %s has multiple query string values' % path)
+        return parts[0], parts[1]
+
     def get_filename_from_path(self, path, query_string):
         """
         Returns (filename, directory). None if unable to cache this request.
@@ -198,11 +206,18 @@ class StaticGenerator(object):
         Gets filename and content for a path, attempts to create directory if 
         necessary, writes to file.
         """
+        content_path = path
+        # The query_string parameter is only passed from the
+        # middleware. If we're generating a page from, e.g.,
+        # the `quick_publish` function, the path may still
+        # have a query string component.
+        if query_string is None:
+            path, query_string = self.get_query_string_from_path(path)
         filename, directory = self.get_filename_from_path(path, query_string)
         if not filename:
             return # cannot cache
         if not content:
-            content = self.get_content_from_path(path)
+            content = self.get_content_from_path(content_path)
 
         if not self.fs.exists(directory):
             try:
@@ -225,7 +240,8 @@ class StaticGenerator(object):
 
     def delete_from_path(self, path):
         """Deletes file, attempts to delete directory"""
-        filename, directory = self.get_filename_from_path(path, '')
+        path, query_string = self.get_query_string_from_path(path)
+        filename, directory = self.get_filename_from_path(path, query_string)
 
         try:
             if self.fs.exists(filename):
