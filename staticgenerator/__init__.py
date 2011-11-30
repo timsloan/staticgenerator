@@ -178,7 +178,12 @@ class StaticGenerator(object):
         return response.content
 
     def get_query_string_from_path(self, path):
-        return path.split('?')
+        parts = path.split('?')
+        if len(parts) == 1:
+            return parts[0], None
+        if len(parts) > 2:
+            raise StaticGeneratorException('Path %s has multiple query string values' % path)
+        return parts[0], parts[1]
 
     def get_filename_from_path(self, path, query_string):
         """
