@@ -27,8 +27,8 @@ class StaticGenerator(object):
         from staticgenerator import quick_publish
         quick_publish('/', Post.objects.live(), FlatPage)
 
-    The class accepts a list of 'resources' which can be any of the 
-    following: URL path (string), Model (class or instance), Manager, or 
+    The class accepts a list of 'resources' which can be any of the
+    following: URL path (string), Model (class or instance), Manager, or
     QuerySet.
 
     As of v1.1, StaticGenerator includes file and path deletion::
@@ -63,7 +63,7 @@ class StaticGenerator(object):
         settings = kw.get('settings', None)
         site = kw.get('site', None)
         fs = kw.get('fs', None)
-        
+
         self.http_request = http_request
         if not http_request:
             from django.http import HttpRequest
@@ -203,7 +203,7 @@ class StaticGenerator(object):
 
     def publish_from_path(self, path, query_string=None, content=None):
         """
-        Gets filename and content for a path, attempts to create directory if 
+        Gets filename and content for a path, attempts to create directory if
         necessary, writes to file.
         """
         content_path = path

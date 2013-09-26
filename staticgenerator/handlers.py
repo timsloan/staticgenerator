@@ -3,6 +3,7 @@
 
 from django.core.handlers.base import BaseHandler
 
+
 class DummyHandler(BaseHandler):
     """Required to process request and response middleware"""
 

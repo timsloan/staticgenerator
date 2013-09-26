@@ -2,7 +2,7 @@
 
 ## Introduction
 
-How many CPU cycles do you suppose are wasted on blogs that are generated every request? Wouldn’t it make more sense to generate them only when they’re updated? StaticGenerator is a Python class for Django that makes it easy to create static files for lightning fast performance. 
+How many CPU cycles do you suppose are wasted on blogs that are generated every request? Wouldn’t it make more sense to generate them only when they’re updated? StaticGenerator is a Python class for Django that makes it easy to create static files for lightning fast performance.
 
 ## Fork
 
@@ -11,14 +11,14 @@ This is a fork from the main branch in order to add patches from [bolhoed](https
 In short, this adds the ability to only cache for anonymous users and to add the ability to exclude urls:
 
     WEB_ROOT = os.path.join(os.path.dirname(__file__), 'generated')
-    
+
     STATIC_GENERATOR_ANONYMOUS_ONLY = True
-    
+
     STATIC_GENERATOR_URLS = (
         r'^/$',
         r'^/(articles|projects|about)',
     )
-    
+
     STATIC_GENERATOR_EXCLUDE_URLS = (
          r'\.xml$',
          r'^/articles/search',
@@ -26,12 +26,14 @@ In short, this adds the ability to only cache for anonymous users and to add the
          r'^/articles/comments/posted',
     )
 
+
+
 ## Download
 
 You can get StaticGenerator using `easy_install`:
 
     easy_install staticgenerator
-    
+
 Or download from the [cheeseshop](http://pypi.python.org/pypi/staticgenerator/1.3).
 
 ## Usage
@@ -51,7 +53,13 @@ First, add Regexes of URLs you want to cache to `settings.py` like so:
         r'^/blog',
         r'^/about',
     )
-    
+
+    STATIC_GENERATOR_QUERYSTRINGS = (
+        r'^page$',
+        r'^print$',
+        r'^debug$',
+    )
+
 Second, add the Middleware to `MIDDLEWARE_CLASSES`:
 
     MIDDLEWARE_CLASSES = (
@@ -60,9 +68,9 @@ Second, add the Middleware to `MIDDLEWARE_CLASSES`:
         'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
         ...snip...
     )
-    
+
 **Note**: You must place the StaticGeneratorMiddleware before FlatpageFallbackMiddleware if you use it.
-    
+
 When the pages are accessed for the first time, the body of the page is saved into a static file. This is completely transparent to the end-user. When the page or an associated object has changed, simply delete the cached file (See notes on Signals).
 
 ### Method 2: Generate on Save
@@ -111,7 +119,7 @@ Every time you save a Post or FlatPage it deletes the static file (notice that I
 
     dispatcher.connect(publish_comment, sender=Comment, signal=signals.post_save)
     dispatcher.connect(publish_comment, sender=FreeComment, signal=signals.post_save)
-    
+
 ## Configure your front-end
 
 ### Sample Nginx configuration
@@ -120,12 +128,12 @@ This configuration snippet shows how Nginx can automatically show the index.html
 
     # This example configuration only shows parts relevant to a Django app
     http {
-    
+
         upstream django {
             # Apache/mod_python running on port 7000
             server example.com:7000;
         }
-    
+
         server {
             server_name  example.com;
             root   /var/www/;
@@ -144,7 +152,7 @@ This configuration snippet shows how Nginx can automatically show the index.html
             }
         }
     }
-    
+
 ## It’s not for Everything
 
 The beauty of the generator is that you choose when and what urls are made into static files. Obviously a contact form or search form won’t work this way, so we just leave them as regular Django requests. In your front-end http server (you are using a front-end web server, right?) just set the URLs you want to be served as static and they’re already being served.

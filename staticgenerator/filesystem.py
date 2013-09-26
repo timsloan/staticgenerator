@@ -31,12 +31,11 @@ class FileSystem(object):
 
     def rmdir(self, directory):
         os.rmdir(directory)
-        
+
     def join(self, *paths):
         if not paths:
             return ""
         return os.path.join(paths[0], *[path.lstrip("/") for path in paths[1:]])
-        
+
     def dirname(self, path):
         return os.path.dirname(path)
-
